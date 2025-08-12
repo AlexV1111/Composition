@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
+import com.example.composition.R
 import com.example.composition.databinding.FragmentGameFinishedBinding
 import com.example.composition.domain.entity.GameResult
 
@@ -44,6 +46,45 @@ class GameFinishedFragment : Fragment() {
                     retryGame()
                 }
             })
+
+        setImage()
+        setText()
+    }
+
+    private fun setImage() {
+        if (gameResult.winner) {
+            val drawableSmile = ContextCompat.getDrawable(requireContext(), R.drawable.ic_smile)
+            binding.emojiResult.setImageDrawable(drawableSmile)
+        } else {
+            val drawableSad = ContextCompat.getDrawable(requireContext(), R.drawable.ic_sad)
+            binding.emojiResult.setImageDrawable(drawableSad)
+        }
+    }
+
+    private fun setText() {
+
+        with(binding) {
+            tvRequiredAnswers.text = String.format(
+                requireContext().resources.getString(R.string.required_score),
+                gameResult.gameSettings.minCountOfRightAnswers
+            )
+
+            tvScoreAnswers.text = String.format(
+                requireContext().resources.getString(R.string.score_answers),
+                gameResult.countOfRightAnswers
+            )
+
+            tvRequiredPercentage.text = String.format(
+                requireContext().resources.getString(R.string.required_percentage),
+                gameResult.gameSettings.minPercentOfRightAnswers
+            )
+
+            tvScorePercentage.text = String.format(
+                requireContext().resources.getString(R.string.score_percentage),
+                if (gameResult.countOfQuestions == 0) ZERO_RESULT
+                else (gameResult.countOfRightAnswers / gameResult.countOfQuestions) * 100
+            )
+        }
     }
 
     override fun onDestroyView() {
@@ -65,6 +106,7 @@ class GameFinishedFragment : Fragment() {
     companion object {
 
         private const val KEY_GAME_RESULT = "game_result"
+        private const val ZERO_RESULT = 0
 
         fun newInstance(gameResult: GameResult): GameFinishedFragment {
             return GameFinishedFragment().apply {

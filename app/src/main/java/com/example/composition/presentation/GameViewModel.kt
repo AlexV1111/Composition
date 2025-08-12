@@ -5,7 +5,6 @@ import android.os.CountDownTimer
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.composition.R
 import com.example.composition.data.GameRepositoryImpl
 import com.example.composition.domain.entity.GameResult
@@ -68,6 +67,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         getGameSettings(level)
         startTimer()
         generateQuestion()
+        updateProgress()
     }
 
     private fun getGameSettings(level: Level) {
@@ -106,7 +106,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun updateProgress() {
-        val percent = ((countOfRightAnswers / countOfQuestions.toDouble()) * 100).toInt()
+        val percent = if (countOfQuestions == 0) 0
+        else ((countOfRightAnswers / countOfQuestions.toDouble()) * 100).toInt()
         _percentOfRightAnswers.value = percent
 
         _progressAnswers.value = String.format(
@@ -124,12 +125,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val seconds = millisUntilFinished / MILLIS_IN_SECOND
         val minutes = seconds / SECONDS_IN_MINUTES
         val leftSeconds = seconds - (minutes * SECONDS_IN_MINUTES)
-        return String.format("%02s:%02s", minutes, seconds)
+        return String.format("%02d:%02d", minutes, seconds)
     }
 
     private fun finishGame() {
         _gameResult.value = GameResult(
-            enoughCountOfRightAnswers.value == true && enoughPercentOfRightAnswers.value == true,
+            _enoughCountOfRightAnswers.value == true && _enoughPercentOfRightAnswers.value == true,
             countOfRightAnswers,
             countOfQuestions,
             gameSettings
