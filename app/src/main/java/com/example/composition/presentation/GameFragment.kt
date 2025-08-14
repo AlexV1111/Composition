@@ -1,12 +1,9 @@
 package com.example.composition.presentation
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -27,17 +24,6 @@ class GameFragment : Fragment() {
         ViewModelProvider(this, viewModelFactory)[GameViewModel::class.java]
     }
 
-    private val tvOptions by lazy {
-        mutableListOf<TextView>().apply {
-            add(binding.tvOption1)
-            add(binding.tvOption2)
-            add(binding.tvOption3)
-            add(binding.tvOption4)
-            add(binding.tvOption5)
-            add(binding.tvOption6)
-        }
-    }
-
     private var _binding: FragmentGameBinding? = null
     private val binding: FragmentGameBinding
         get() = _binding ?: throw RuntimeException("FragmentGameBinding == null")
@@ -53,76 +39,10 @@ class GameFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        launchTimer()
-
-        setQuestion()
-
-        setProgressBar()
-
-        clickAnswer()
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
 
         getGameResult()
-    }
-
-    private fun launchTimer() {
-        viewModel.formattedTime.observe(viewLifecycleOwner) {
-            binding.tvTimer.text = it
-        }
-    }
-
-    private fun setQuestion() {
-        viewModel.question.observe(viewLifecycleOwner) {
-            binding.tvSum.text = it.sum.toString()
-            binding.tvLeftNumber.text = it.visibleNumber.toString()
-            for (i in 0 until tvOptions.size) {
-                tvOptions[i].text = it.options[i].toString()
-            }
-        }
-    }
-
-    private fun setProgressBar() {
-
-        viewModel.percentOfRightAnswers.observe(viewLifecycleOwner) {
-            binding.progressBar.progress = it
-        }
-
-        viewModel.progressAnswers.observe(viewLifecycleOwner) {
-            binding.tvAnswersProgress.text = it
-        }
-
-        viewModel.enoughCountOfRightAnswers.observe(viewLifecycleOwner) {
-            val colorResId = if (it) {
-                android.R.color.holo_green_light
-            } else {
-                android.R.color.holo_red_light
-            }
-            val color = ContextCompat.getColor(requireContext(), colorResId)
-            binding.tvAnswersProgress.setTextColor(color)
-        }
-
-        viewModel.enoughPercentOfRightAnswers.observe(viewLifecycleOwner) {
-            val colorResId = if (it) {
-                android.R.color.holo_green_light
-            } else {
-                android.R.color.holo_red_light
-            }
-            val color = ContextCompat.getColor(requireContext(), colorResId)
-            binding.progressBar.progressTintList = ColorStateList.valueOf(color)
-        }
-
-        viewModel.minPercent.observe(viewLifecycleOwner) {
-            binding.progressBar.secondaryProgress = it
-        }
-    }
-
-
-    private fun clickAnswer() {
-
-        for (i in 0 until tvOptions.size) {
-            tvOptions[i].setOnClickListener {
-                viewModel.chooseAnswer(tvOptions[i].text.toString().toInt())
-            }
-        }
     }
 
     private fun getGameResult() {
@@ -131,17 +51,20 @@ class GameFragment : Fragment() {
         }
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     private fun launchGameFinishedFragment(gameResult: GameResult) {
-        findNavController().navigate(GameFragmentDirections.actionGameFragmentToGameFinishedFragment(gameResult))
+        findNavController().navigate(
+            GameFragmentDirections.actionGameFragmentToGameFinishedFragment(
+                gameResult
+            )
+        )
     }
 
-    companion object{
+    companion object {
 
         const val NAME = "GameFragment"
         const val KEY_LEVEL = "level"
