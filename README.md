@@ -1,0 +1,1 @@
+The numbers game: There will be three figures in front of you, two from below and one from above, and two of them will contain numbers. It is necessary that the sum of the numbers from the two lower shapes is equal to the number in the upper shape. To do this, insert the missing number.
